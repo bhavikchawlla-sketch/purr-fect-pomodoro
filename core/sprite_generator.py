@@ -410,6 +410,48 @@ def _draw_typing_body(draw: ImageDraw.ImageDraw, ox: int, oy: int) -> None:
     _line_v(draw, ox + 13, oy + 13, 2, BODY_SHADOW)
 
 
+def _draw_walking_body(draw: ImageDraw.ImageDraw, ox: int, oy: int, step: int = 0) -> None:
+    """Draw the cat's walking body at offset (ox, oy) with a specific step phase."""
+    # Torso outline
+    _line_v(draw, ox + 4, oy + 11, 7, OUTLINE)
+    _line_v(draw, ox + 14, oy + 11, 7, OUTLINE)
+    _line_h(draw, ox + 5, oy + 11, 9, OUTLINE)
+
+    # Torso fill
+    for row in range(12, 18):
+        _line_h(draw, ox + 5, oy + row, 9, BODY_BASE)
+
+    # Belly / chest
+    _line_h(draw, ox + 7, oy + 12, 5, BELLY)
+    _line_h(draw, ox + 7, oy + 13, 5, BELLY)
+    _line_h(draw, ox + 8, oy + 14, 3, BELLY)
+
+    # Shadow on sides
+    _line_v(draw, ox + 5, oy + 14, 3, BODY_SHADOW)
+    _line_v(draw, ox + 13, oy + 14, 3, BODY_SHADOW)
+
+    # Highlight on shoulders
+    _px(draw, ox + 6, oy + 12, BODY_HIGHLIGHT)
+    _px(draw, ox + 12, oy + 12, BODY_HIGHLIGHT)
+
+    # Left paw: raised up slightly if step is 0
+    l_bob = -1 if step == 0 else 0
+    _line_h(draw, ox + 5, oy + 18 + l_bob, 3, OUTLINE)
+    _px(draw, ox + 5, oy + 17 + l_bob, OUTLINE)
+    _px(draw, ox + 7, oy + 17 + l_bob, OUTLINE)
+    _px(draw, ox + 6, oy + 17 + l_bob, BODY_BASE)
+    _px(draw, ox + 6, oy + 18 + l_bob, BELLY)
+
+    # Right paw: raised up slightly if step is 2
+    r_bob = -1 if step == 2 else 0
+    _line_h(draw, ox + 11, oy + 18 + r_bob, 3, OUTLINE)
+    _px(draw, ox + 11, oy + 17 + r_bob, OUTLINE)
+    _px(draw, ox + 13, oy + 17 + r_bob, OUTLINE)
+    _px(draw, ox + 12, oy + 17 + r_bob, BODY_BASE)
+    _px(draw, ox + 12, oy + 18 + r_bob, BELLY)
+
+
+
 # ---------------------------------------------------------------------------
 # Stretch body helpers
 # ---------------------------------------------------------------------------
@@ -656,6 +698,27 @@ def _generate_stretch_frames(sprites_dir: str) -> None:
         img.save(str(out / f"stretch_{i}.png"))
 
 
+def _generate_walk_frames(sprites_dir: str) -> None:
+    """Generate the 4 walking animation frames."""
+    out = Path(sprites_dir) / "walk"
+    out.mkdir(parents=True, exist_ok=True)
+
+    eye_states = ["open", "open", "open", "open"]
+    tail_raises = [0, 1, 0, 1]
+    body_bobs = [0, 1, 0, 1]
+
+    for i in range(4):
+        img, draw = _new_frame()
+        ox, oy = 3, 3
+
+        _draw_ears(draw, ox, oy + body_bobs[i])
+        _draw_head(draw, ox, oy + body_bobs[i], eye_state=eye_states[i])
+        _draw_walking_body(draw, ox, oy, step=i)
+        _draw_tail(draw, ox, oy + body_bobs[i], raise_level=tail_raises[i])
+
+        img.save(str(out / f"walk_{i}.png"))
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -665,7 +728,7 @@ def generate_all(sprites_dir: str) -> None:
     Generate all sprite frames into the given directory.
 
     Creates sub-directories ``idle/``, ``typing/``, ``tracking/``,
-    ``focused/``, and ``stretch/``, each containing 4 numbered PNG frames.
+    ``focused/``, ``stretch/``, and ``walk/``, each containing 4 numbered PNG frames.
 
     Parameters
     ----------
@@ -680,6 +743,8 @@ def generate_all(sprites_dir: str) -> None:
     _generate_tracking_frames(sprites_dir)
     _generate_focused_frames(sprites_dir)
     _generate_stretch_frames(sprites_dir)
+    _generate_walk_frames(sprites_dir)
+
 
 
 def generate_if_missing(sprites_dir: str) -> None:
@@ -720,4 +785,4 @@ if __name__ == "__main__":
     )
     print(f"Generating sprites in: {os.path.abspath(dest)}")
     generate_all(dest)
-    print("Done — generated 20 frames across 5 animation states.")
+    print("Done — generated 24 frames across 6 animation states.")

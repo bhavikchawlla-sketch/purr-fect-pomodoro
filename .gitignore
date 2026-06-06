@@ -5,6 +5,7 @@ __pycache__/
 
 # Generated assets
 sprites/
+sounds/
 
 # OS/IDE
 .DS_Store

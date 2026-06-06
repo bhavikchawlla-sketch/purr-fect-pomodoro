@@ -191,12 +191,16 @@ class Comnyang:
         """Handle stretch reminder trigger."""
         self._is_stretching = True
         self._animation.set_state("stretch")
+        self._window._sound_engine.play("level_up")
+        self._window.set_speech("Time to stretch! 🧘", 5)
         # Revert after 10 seconds
         self._stretch_revert_timer.start(10_000)
 
     def _end_stretch_animation(self) -> None:
         """Revert from stretch animation back to normal state."""
         self._is_stretching = False
+        self._window._sound_engine.play("meow")
+        self._window.set_speech("Ah, much better!", 3)
         if self._ai_tools_active:
             self._animation.set_state("focused")
         else:
@@ -222,7 +226,7 @@ class Comnyang:
             return
 
         # Tint each animation state
-        for state_name in ["idle", "typing", "tracking", "focused", "stretch"]:
+        for state_name in ["idle", "typing", "tracking", "focused", "stretch", "walk"]:
             state_dir = os.path.join(self._sprites_dir, state_name)
             if os.path.isdir(state_dir):
                 tinted_pixmaps = get_tinted_frames(state_dir, color_rgb)

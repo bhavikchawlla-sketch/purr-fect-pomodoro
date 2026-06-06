@@ -23,11 +23,11 @@ class AnimationEngine(QObject):
 
     frame_changed = pyqtSignal(QPixmap)
 
-    # Animation states ordered by priority (highest first)
     STATE_PRIORITY = {
-        'stretch': 5,
-        'typing': 4,
-        'tracking': 3,
+        'stretch': 6,
+        'typing': 5,
+        'tracking': 4,
+        'walk': 3,
         'focused': 2,
         'idle': 1,
     }
